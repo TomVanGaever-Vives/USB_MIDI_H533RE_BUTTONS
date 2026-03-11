@@ -374,6 +374,41 @@ void MCP23S17_SPI_Test(void)
   HAL_UART_Transmit(&hcom_uart[COM1], (uint8_t*)msg, (uint16_t)len, 100);
 }
 
+void midi_task(void)
+{
+  // Discard any incoming MIDI to avoid sender blocking
+  uint8_t packet[4];
+  while ( tud_midi_available() ) tud_midi_packet_read(packet);
+
+  // Send a Note On/Off every second
+  static uint32_t start_ms = 0;
+  static bool note_on = false;
+
+  if (HAL_GetTick() - start_ms > 1000)
+  {
+    start_ms = HAL_GetTick();
+    HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+
+    uint8_t cable_num = 0;
+    uint8_t channel   = 0;
+    uint8_t note      = 60;
+    uint8_t velocity  = 100;
+
+    if (note_on)
+    {
+      uint8_t note_off[3] = { 0x80 | channel, note, 0 };
+      tud_midi_stream_write(cable_num, note_off, 3);
+      note_on = false;
+    }
+    else
+    {
+      uint8_t note_on_msg[3] = { 0x90 | channel, note, velocity };
+      tud_midi_stream_write(cable_num, note_on_msg, 3);
+      note_on = true;
+    }
+  }
+}
+
 /* USER CODE END 4 */
 
 /**
