@@ -1,5 +1,4 @@
-usb_midi2/stm32h5xx_hal_pcd.o: \
-  ..\Drivers\STM32H5xx_HAL_Driver\Src\stm32h5xx_hal_pcd.c \
+usb_midi2/mcp23s17.o: ..\Core\Src\mcp23s17.c ..\Core\Inc\mcp23s17.h \
   ..\Drivers\STM32H5xx_HAL_Driver\Inc\stm32h5xx_hal.h \
   ..\Core\Inc\stm32h5xx_hal_conf.h \
   ..\Drivers\STM32H5xx_HAL_Driver\Inc\stm32h5xx_hal_rcc.h \

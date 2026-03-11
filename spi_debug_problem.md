@@ -144,10 +144,10 @@ CubeMX set this when generating SPI2. Even with `NSS = SPI_NSS_SOFT` (CS via GPI
 
 **Suggested fix:** Set `NSSPMode = SPI_NSS_PULSE_DISABLE` in CubeMX → regenerate.
 
-### 2. `GPIO_SPEED_FREQ_LOW` on SPI pins
-The SPI alternate function pins (PB13 SCK, PB14 MISO, PB15 MOSI) and CS (PB12) are all configured with `GPIO_SPEED_FREQ_LOW`. On STM32H5, this limits slew rate to ~2 MHz. At 750 kHz SPI clock, rise/fall times of ~500ns represent ~37% of the clock period. This may degrade signal quality enough to cause intermittent read failures on the breadboard.
+### 2. `GPIO_SPEED_FREQ_LOW` on SPI pins (RESOLVED ✅)
+The SPI alternate function pins (PB13 SCK, PB14 MISO, PB15 MOSI) and CS (PB12) were initially configured with `GPIO_SPEED_FREQ_LOW`. On STM32H5, this limits slew rate to ~2 MHz. At 750 kHz SPI clock, rise/fall times of ~500ns represent ~37% of the clock period. This degraded signal quality enough to cause intermittent read failures on the breadboard.
 
-**Suggested fix:** Change SPI GPIO speed to `GPIO_SPEED_FREQ_MEDIUM` or `HIGH` in CubeMX → regenerate.
+**Resolution:** Changing the CS GPIO speed to `GPIO_SPEED_FREQ_VERY_HIGH` fixed the issue. The slow falling edge of the CS signal was failing to properly activate the MCP23S17 in time for the first clock edge. The scope probe's capacitance actually masked this by interacting with the slow drive strength, but native fast edges resolve it reliably.
 
 ### 3. Probe capacitance effect
 The Analog Discovery scope probe (~24pF input capacitance, 1MΩ) connected to CS consistently fixes the problem. This is an unusual symptom. Possible explanations:

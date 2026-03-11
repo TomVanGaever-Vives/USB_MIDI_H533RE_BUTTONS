@@ -1,5 +1,5 @@
-usb_midi2/stm32h5xx_hal_pcd.o: \
-  ..\Drivers\STM32H5xx_HAL_Driver\Src\stm32h5xx_hal_pcd.c \
+usb_midi2/matrix.o: ..\Core\Src\matrix.c ..\Core\Inc\matrix.h \
+  ..\Core\Inc\mcp23s17.h \
   ..\Drivers\STM32H5xx_HAL_Driver\Inc\stm32h5xx_hal.h \
   ..\Core\Inc\stm32h5xx_hal_conf.h \
   ..\Drivers\STM32H5xx_HAL_Driver\Inc\stm32h5xx_hal_rcc.h \
@@ -27,4 +27,16 @@ usb_midi2/stm32h5xx_hal_pcd.o: \
   ..\Drivers\STM32H5xx_HAL_Driver\Inc\stm32h5xx_hal_pcd.h \
   ..\Drivers\STM32H5xx_HAL_Driver\Inc\stm32h5xx_ll_usb.h \
   ..\Drivers\STM32H5xx_HAL_Driver\Inc\stm32h5xx_hal_pcd_ex.h \
-  ..\Drivers\STM32H5xx_HAL_Driver\Inc\stm32h5xx_hal_exti.h
+  ..\Drivers\STM32H5xx_HAL_Driver\Inc\stm32h5xx_hal_exti.h \
+  ..\lib\tinyusb\src\tusb.h ..\lib\tinyusb\src\common\tusb_common.h \
+  ..\lib\tinyusb\src\tusb_option.h \
+  ..\lib\tinyusb\src\common\tusb_compiler.h ..\Core\Inc\tusb_config.h \
+  ..\lib\tinyusb\src\common\tusb_mcu.h \
+  ..\lib\tinyusb\src\common\tusb_verify.h \
+  ..\lib\tinyusb\src\common\tusb_types.h \
+  ..\lib\tinyusb\src\common\tusb_debug.h ..\lib\tinyusb\src\osal\osal.h \
+  ..\lib\tinyusb\src\osal\osal_none.h \
+  ..\lib\tinyusb\src\common\tusb_fifo.h ..\lib\tinyusb\src\device\usbd.h \
+  ..\lib\tinyusb\src\class\midi\midi_device.h \
+  ..\lib\tinyusb\src\class\audio\audio.h \
+  ..\lib\tinyusb\src\class\midi\midi.h

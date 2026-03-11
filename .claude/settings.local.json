@@ -3,7 +3,9 @@
     "allow": [
       "Bash(ls:*)",
       "Bash(git submodule:*)",
-      "Bash(git ls-tree:*)"
+      "Bash(git ls-tree:*)",
+      "Bash(python -:*)",
+      "Bash(xxd)"
     ]
   }
 }
