@@ -371,7 +371,7 @@ void MCP23S17_SPI_Test(void)
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_SET);
 
   int len = snprintf(msg, sizeof(msg), "MCP23S17 IODIRA = 0x%02X (expect 0xFF)\r\n", rx[2]);
-  BSP_COM_Transmit(COM1, (uint8_t*)msg, len);
+  HAL_UART_Transmit(&hcom_uart[COM1], (uint8_t*)msg, (uint16_t)len, 100);
 }
 
 /* USER CODE END 4 */
