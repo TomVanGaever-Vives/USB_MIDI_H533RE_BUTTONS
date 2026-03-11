@@ -59,6 +59,7 @@ static void MX_USB_PCD_Init(void);
 static void MX_SPI2_Init(void);
 static void MX_ICACHE_Init(void);
 /* USER CODE BEGIN PFP */
+void MCP23S17_SPI_Test(void);
 extern void tusb_hal_init(void);
 void midi_task(void);
 /* USER CODE END PFP */
@@ -361,65 +362,16 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 void MCP23S17_SPI_Test(void)
 {
-  uint8_t tx[3] = { 0x41, 0x00, 0x00 }; // read opcode (addr=000), IODIRA reg, dummy
+  uint8_t tx[3] = { 0x41, 0x00, 0x00 };
   uint8_t rx[3] = { 0x00, 0x00, 0x00 };
   char msg[64];
 
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_RESET); // CS low
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_RESET);
   HAL_SPI_TransmitReceive(&hspi2, tx, rx, 3, 100);
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_SET);   // CS high
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_SET);
 
-  int len = snprintf(msg, sizeof(msg), "MCP23S17 IODIRA = 0x%02X (expect 0xFF)
-
-", rx[2]);
+  int len = snprintf(msg, sizeof(msg), "MCP23S17 IODIRA = 0x%02X (expect 0xFF)\r\n", rx[2]);
   BSP_COM_Transmit(COM1, (uint8_t*)msg, len);
-}
-
-//--------------------------------------------------------------------+
-// MIDI Task
-//--------------------------------------------------------------------+
-
-void midi_task(void)
-{
-  // The MIDI interface always creates input and output port/jack descriptors
-  // regardless of these being used or not. Therefore incoming traffic should be read
-  // (possibly just discarded) to avoid the sender blocking in IO
-  uint8_t packet[4];
-  while ( tud_midi_available() ) tud_midi_packet_read(packet);
-
-  // Example: Send a Note On message every second
-  static uint32_t start_ms = 0;
-  static bool note_on = false;
-
-  // Blink every 1000 ms
-  if (HAL_GetTick() - start_ms > 1000)
-  {
-    start_ms = HAL_GetTick();
-
-    // Toggle LED
-    HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-
-    // Send MIDI Note On/Off
-    uint8_t cable_num = 0; // MIDI jack associated with USB endpoint
-    uint8_t channel = 0;   // 0 for channel 1
-    uint8_t note = 60;     // Middle C
-    uint8_t velocity = 100;
-
-    if (note_on)
-    {
-      // Note Off: 0x80 is channel message, 0x80 | channel is Note Off on channel 1
-      uint8_t note_off[3] = { 0x80 | channel, note, 0 };
-      tud_midi_stream_write(cable_num, note_off, 3);
-      note_on = false;
-    }
-    else
-    {
-      // Note On: 0x90 is channel message, 0x90 | channel is Note On on channel 1
-      uint8_t note_on_msg[3] = { 0x90 | channel, note, velocity };
-      tud_midi_stream_write(cable_num, note_on_msg, 3);
-      note_on = true;
-    }
-  }
 }
 
 /* USER CODE END 4 */
