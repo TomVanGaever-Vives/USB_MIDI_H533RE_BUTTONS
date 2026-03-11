@@ -365,24 +365,23 @@ void MCP23S17_SPI_Test(void)
   uint8_t tx[3] = { 0x41, 0x00, 0x00 };
   uint8_t rx[3] = { 0x00, 0x00, 0x00 };
   char msg[64];
+  HAL_StatusTypeDef status;
 
-  HAL_Delay(100);                                          // MCP23S17 power-up time
+  HAL_Delay(100);
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_RESET);
-  HAL_Delay(1);                                            // CS setup time
-  HAL_SPI_TransmitReceive(&hspi2, tx, rx, 3, 100);
+  HAL_Delay(1);
+  status = HAL_SPI_TransmitReceive(&hspi2, tx, rx, 3, 100);
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_SET);
 
-  int len = snprintf(msg, sizeof(msg), "MCP23S17 IODIRA = 0x%02X (expect 0xFF)\r\n", rx[2]);
+  int len = snprintf(msg, sizeof(msg), "SPI status=%d IODIRA=0x%02X (expect 0xFF)\r\n", status, rx[2]);
   HAL_UART_Transmit(&hcom_uart[COM1], (uint8_t*)msg, (uint16_t)len, 100);
 }
 
 void midi_task(void)
 {
-  // Discard any incoming MIDI to avoid sender blocking
   uint8_t packet[4];
   while ( tud_midi_available() ) tud_midi_packet_read(packet);
 
-  // Send a Note On/Off every second
   static uint32_t start_ms = 0;
   static bool note_on = false;
 
