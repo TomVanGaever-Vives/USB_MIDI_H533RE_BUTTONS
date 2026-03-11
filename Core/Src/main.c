@@ -21,6 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <stdio.h>
 #include "tusb.h"
 /* USER CODE END Includes */
 
@@ -123,6 +124,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  MCP23S17_SPI_Test();
   while (1)
   {
     // tinyUSB device task
@@ -357,6 +359,21 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void MCP23S17_SPI_Test(void)
+{
+  uint8_t tx[3] = { 0x41, 0x00, 0x00 }; // read opcode (addr=000), IODIRA reg, dummy
+  uint8_t rx[3] = { 0x00, 0x00, 0x00 };
+  char msg[64];
+
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_RESET); // CS low
+  HAL_SPI_TransmitReceive(&hspi2, tx, rx, 3, 100);
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_SET);   // CS high
+
+  int len = snprintf(msg, sizeof(msg), "MCP23S17 IODIRA = 0x%02X (expect 0xFF)
+
+", rx[2]);
+  BSP_COM_Transmit(COM1, (uint8_t*)msg, len);
+}
 
 //--------------------------------------------------------------------+
 // MIDI Task
