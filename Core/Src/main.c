@@ -137,6 +137,25 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    if (BSP_PB_GetState(BUTTON_USER))
+    {
+      char dbg[96];
+      int  dlen;
+      /* Hold CS LOW 200ms - measure PB12 with multimeter (expect 0V) */
+      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_RESET);
+      HAL_Delay(200);
+      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_SET);
+      /* SPI transaction - dump all 3 rx bytes */
+      uint8_t tx[3] = { 0x41, 0x00, 0x00 };
+      uint8_t rx[3] = { 0x00, 0x00, 0x00 };
+      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_RESET);
+      HAL_Delay(1);
+      HAL_StatusTypeDef st = HAL_SPI_TransmitReceive(&hspi2, tx, rx, 3, 100);
+      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_SET);
+      dlen = snprintf(dbg, sizeof(dbg), "BTN: SPI=%d rx=[0x%02X,0x%02X,0x%02X]\r\n", st, rx[0], rx[1], rx[2]);
+      HAL_UART_Transmit(&hcom_uart[COM1], (uint8_t*)dbg, (uint16_t)dlen, 100);
+      HAL_Delay(500);
+    }
   }
   /* USER CODE END 3 */
 }
@@ -250,7 +269,7 @@ static void MX_SPI2_Init(void)
   hspi2.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi2.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi2.Init.NSS = SPI_NSS_SOFT;
-  hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
+  hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_64;
   hspi2.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi2.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi2.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
