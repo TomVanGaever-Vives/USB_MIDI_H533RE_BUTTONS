@@ -366,7 +366,9 @@ void MCP23S17_SPI_Test(void)
   uint8_t rx[3] = { 0x00, 0x00, 0x00 };
   char msg[64];
 
+  HAL_Delay(100);                                          // MCP23S17 power-up time
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_RESET);
+  HAL_Delay(1);                                            // CS setup time
   HAL_SPI_TransmitReceive(&hspi2, tx, rx, 3, 100);
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_SET);
 
