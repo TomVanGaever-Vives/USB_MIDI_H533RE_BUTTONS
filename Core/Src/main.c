@@ -21,8 +21,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <stdio.h>
 #include "tusb.h"
+#include "matrix.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -59,9 +59,7 @@ static void MX_USB_PCD_Init(void);
 static void MX_SPI2_Init(void);
 static void MX_ICACHE_Init(void);
 /* USER CODE BEGIN PFP */
-void MCP23S17_SPI_Test(void);
 extern void tusb_hal_init(void);
-void midi_task(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -125,14 +123,11 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  MCP23S17_SPI_Test();
+  Matrix_Init();
   while (1)
   {
-    // tinyUSB device task
     tud_task();
-
-    // MIDI application task
-    midi_task();
+    Matrix_Scan();
 
     /* USER CODE END WHILE */
 
@@ -360,56 +355,6 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-void MCP23S17_SPI_Test(void)
-{
-  uint8_t tx[3] = { 0x41, 0x00, 0x00 };
-  uint8_t rx[3] = { 0x00, 0x00, 0x00 };
-  char msg[64];
-  HAL_StatusTypeDef status;
-
-  HAL_Delay(100);
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_RESET);
-  HAL_Delay(1);
-  status = HAL_SPI_TransmitReceive(&hspi2, tx, rx, 3, 100);
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_SET);
-
-  int len = snprintf(msg, sizeof(msg), "SPI status=%d IODIRA=0x%02X (expect 0xFF)\r\n", status, rx[2]);
-  HAL_UART_Transmit(&hcom_uart[COM1], (uint8_t*)msg, (uint16_t)len, 100);
-}
-
-void midi_task(void)
-{
-  uint8_t packet[4];
-  while ( tud_midi_available() ) tud_midi_packet_read(packet);
-
-  static uint32_t start_ms = 0;
-  static bool note_on = false;
-
-  if (HAL_GetTick() - start_ms > 1000)
-  {
-    start_ms = HAL_GetTick();
-    HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-
-    uint8_t cable_num = 0;
-    uint8_t channel   = 0;
-    uint8_t note      = 60;
-    uint8_t velocity  = 100;
-
-    if (note_on)
-    {
-      uint8_t note_off[3] = { 0x80 | channel, note, 0 };
-      tud_midi_stream_write(cable_num, note_off, 3);
-      note_on = false;
-    }
-    else
-    {
-      uint8_t note_on_msg[3] = { 0x90 | channel, note, velocity };
-      tud_midi_stream_write(cable_num, note_on_msg, 3);
-      note_on = true;
-    }
-  }
-}
-
 /* USER CODE END 4 */
 
 /**
