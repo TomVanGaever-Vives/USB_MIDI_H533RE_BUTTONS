@@ -42,7 +42,7 @@ void Matrix_Scan(void)
                 if (changed & (1U << row))
                 {
                     uint8_t button  = col * 4U + row;
-                    uint8_t note    = 36U + button;   /* C2 = 36, range 36-51 */
+                    uint8_t note    = 36U + button;                           /* C2 = 36, range 36-51 */
                     uint8_t pressed = !(rows & (1U << row));
 
                     if (tud_midi_mounted())
